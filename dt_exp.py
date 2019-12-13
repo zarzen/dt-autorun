@@ -79,7 +79,7 @@ class ExpRunner:
                 "-x", "PYTHONPATH={}".format(
                     expanduser("~/autorun/horovod-modified/build/lib.linux-x86_64-3.6")),
                 "-mca", "btl ^openib",
-                "-mca", "btl_tcp_if_exclude lo",
+                "-mca", "btl_tcp_if_exclude lo,docker0",
                 self.python_bin, self.script_path, 
                 self.script_args]
         return cmd
@@ -170,7 +170,7 @@ def main():
                 ["localhost", "172.31.29.187"], # list of worker's ip
                 nGPU="1", # nGPU on each machine
                 eth="ens3", # NIC interface name, used for bandwidth limit
-                bw_limit="1Gbit", # limiting bandwidth, 100Mbit, 1Gbit, 10Gbit 25Gbit, 40Gbit,
+                bw_limit="", # limiting bandwidth, 100Mbit, 1Gbit, 10Gbit 25Gbit, 40Gbit,
                 log_folder="" # if not specified, it will used the timestamp
                 )
     exp.run()

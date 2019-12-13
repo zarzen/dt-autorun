@@ -4,3 +4,4 @@ distributed-training
 horovod-modified/
 logs/
 log_archives
+horovod_logs
