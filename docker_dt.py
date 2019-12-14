@@ -83,7 +83,7 @@ class ExpRunner:
         stop_cmd = "docker kill $(docker ps -q)"
         pull_cmd = "docker pull zarzen/horovod-mod:1.0"
 
-        start_cmd = "docker run --gpus all --network=host --detach --ipc=host "\
+        start_cmd = "sudo docker run --gpus all --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
@@ -138,9 +138,19 @@ class ExpRunner:
                         username=self.docker_user, 
                         pkey=self.docker_key) 
 
-        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd))
+        def line_buffered(f):
+            line_buf = ""
+            while not f.channel.exit_status_ready():
+                c = f.read(1).decode('utf-8') 
+                if c != '\n':
+                    line_buf += c 
+                else:
+                    yield line_buf
+                    line_buf = ''
+        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=1000)
         print("-"*10, 'training log')
-        print(stdout.read().decode('utf-8'))
+        for line in line_buffered(stdout):
+            print(line)
         print(stderr.read().decode('utf-8'))
         print('-'*10, 'training log end')
     
