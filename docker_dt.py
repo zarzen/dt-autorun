@@ -215,7 +215,9 @@ class ExpRunner:
         _moving("./horovod_logs/model_log/", dst_folder, n_model-e_model)
         _moving("./horovod_logs/mpi_events", dst_folder, n_mpi-e_mpi)
         with open(join(dst_folder, "readme"), 'w+') as ofile:
-            ofile.write("bandwidth limit: " + self.bw_limit)
+            ofile.write("bandwidth limit: {}\n".format(self.bw_limit))
+            train_cmd = self.build_train_cmd()
+            ofile.write("execute cmd: {}\n".format(" ".join(train_cmd)))
     
     def _get_cpu_net_log(self):
         """ 
@@ -253,7 +255,7 @@ def main():
     exp = ExpRunner(host_user_dir="/home/ubuntu", docker_user_dir="/home/cluster", 
                     docker_user="cluster",
                     docker_port=2022,
-                    script_path="~/distributed-training/test_scripts/pytorch_resnet50_cifar10.py", 
+                    script_path="~/distributed-training/test_scripts/pytorch_vgg16_cifar10.py", 
                     script_args="--epochs 1", # args of the script we want to run
                     nodes=["localhost", "172.31.29.187"], # list of worker's ip, the first one the rank0
                     nGPU="1", # nGPU on each machine
