@@ -147,7 +147,7 @@ class ExpRunner:
                 else:
                     yield line_buf
                     line_buf = ''
-        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=1000)
+        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=100)
         print("-"*10, 'training log')
         for line in line_buffered(stdout):
             print(line)
@@ -166,7 +166,8 @@ class ExpRunner:
                 "-H", hosts,
                 "python3", 
                 self.script_path, 
-                self.script_args]
+                self.script_args,
+                "|& grep -v \"Read -1\""]
         return cmd
     
     def _get_logs(self):
