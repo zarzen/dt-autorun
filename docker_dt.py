@@ -1,4 +1,6 @@
 import os
+import sys
+import json
 from os.path import expanduser, join, abspath
 import subprocess
 import datetime
@@ -8,27 +10,30 @@ import paramiko
 
 class ExpRunner:
 
-    def __init__(self, host_user_dir: str, docker_user_dir, docker_user,
-                    docker_port,
-                    script_path: str, script_args: str,
-                    nodes: list, nGPU: str, eth: str, bw_limit: str, default_bw,
-                    log_folder=None) -> None:
+    def __init__(self, config) -> None:
         """"""
-        self.host_user_dir = host_user_dir
-        self.docker_user_dir = docker_user_dir
-        self.docker_user = docker_user
-        self.docker_ssh_port = docker_port
-        self.script_path = self._trans_docker_path(script_path)
-        self.script_args = script_args
-        self.nodes = nodes
-        self.nGPU = nGPU # for each machine
-        self.eth = eth # name if NIC
-        self.bw_limit = bw_limit
-        self.default_bw = default_bw
-        self.log_folder = log_folder
-        self.host_key = paramiko.RSAKey.from_private_key_file(expanduser("~/.ssh/id_rsa"))
-        self.docker_key = paramiko.RSAKey.from_private_key_file("./DockerEnv/ssh-keys/id_rsa")
+        self.config = config
+        self._config_parser(self.config)
+
         self._init_host_ssh()
+    
+    def _config_parser(self, config):
+        """ parse json object
+        """
+        self.host_user_dir = config["host_user_dir"]
+        self.docker_user_dir = config["docker_user_dir"]
+        self.docker_user = config["docker_user"]
+        self.docker_ssh_port = config["docker_ssh_port"]
+        self.script_path = self._trans_docker_path(config["script_path"])
+        self.script_args = config["script_args"]
+        self.nodes = config['nodes']
+        self.nGPU = config['nGPU'] # for each machine
+        self.eth = config['eth'] # name if NIC
+        self.bw_limit = config['bw_limit']
+        self.default_bw = config['default_bw']
+        self.log_folder = config['log_folder']
+        self.host_key = paramiko.RSAKey.from_private_key_file(expanduser(config["host_ssh_key"]))
+        self.docker_key = paramiko.RSAKey.from_private_key_file(config["docker_ssh_key"])
         
     def _trans_docker_path(self, path):
         return path.replace('~', self.docker_user_dir)
@@ -214,10 +219,12 @@ class ExpRunner:
         _moving("./horovod_logs/hooks", dst_folder, n_hook-e_hook)
         _moving("./horovod_logs/model_log/", dst_folder, n_model-e_model)
         _moving("./horovod_logs/mpi_events", dst_folder, n_mpi-e_mpi)
-        with open(join(dst_folder, "readme"), 'w+') as ofile:
+        with open(join(dst_folder, "readme.txt"), 'w+') as ofile:
             ofile.write("bandwidth limit: {}\n".format(self.bw_limit))
             train_cmd = self.build_train_cmd()
             ofile.write("execute cmd: {}\n".format(" ".join(train_cmd)))
+        with open(join(dst_folder, "config.json"), 'w') as ofile:
+            json.dump(self.config, ofile, indent=4)
     
     def _get_cpu_net_log(self):
         """ 
@@ -252,19 +259,14 @@ class ExpRunner:
 
 def main():
     """"""
-    exp = ExpRunner(host_user_dir="/home/ubuntu", docker_user_dir="/home/cluster", 
-                    docker_user="cluster",
-                    docker_port=2022,
-                    script_path="~/distributed-training/test_scripts/pytorch_vgg16_cifar10.py", 
-                    script_args="--epochs 1", # args of the script we want to run
-                    nodes=["localhost", "172.31.29.187"], # list of worker's ip, the first one the rank0
-                    nGPU="1", # nGPU on each machine
-                    eth="ens3", # NIC interface name, used for bandwidth limit
-                    bw_limit="", # limiting bandwidth, 100Mbit, 1Gbit, 10Gbit 25Gbit, 40Gbit,
-                    default_bw="1.45Gbit", # default bandwidth
-                    log_folder="" # if not specified, it will used the timestamp
-                )
-    exp.run()
+    if len(sys.argv) < 2:
+        print("Please specific config file")
+        sys.exit()
+        return 
+    with open(sys.argv[1]) as config_file:
+        config = json.load(config_file)
+        exp = ExpRunner(config)
+        exp.run()
 
 
 if __name__ == "__main__":
