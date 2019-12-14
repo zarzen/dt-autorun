@@ -82,7 +82,7 @@ class ExpRunner:
         """"""
         pull_cmd = "docker pull zarzen/horovod-mod:1.0"
 
-        start_cmd = "docker run --gpus all --network=host --detach "\
+        start_cmd = "docker run --gpus all --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
