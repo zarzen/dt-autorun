@@ -80,6 +80,7 @@ class ExpRunner:
 
     def _start_containers(self):
         """"""
+        stop_cmd = "docker kill $(docker ps -q)"
         pull_cmd = "docker pull zarzen/horovod-mod:1.0"
 
         start_cmd = "docker run --gpus all --network=host --detach --ipc=host "\
@@ -90,6 +91,7 @@ class ExpRunner:
         self.docker_ids = {}
         for (ip, cli) in self.host_nodes:
             print('>'*10, ip, '<'*10)
+            self._exec_cli_cmd(cli, stop_cmd, "{}: stop all containers".format(ip))
             self._exec_cli_cmd(cli, pull_cmd, "{}: pull docker image".format(ip))
             _, stdout, stderr = cli.exec_command(start_cmd)
             _docker_id = stdout.read().decode('utf-8')
