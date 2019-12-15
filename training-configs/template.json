@@ -14,5 +14,5 @@
     "eth": "ens3",
     "bw_limit": "",
     "default_bw": "1.45Gbps",
-    "log_folder": ""
+    "log_folder": "ResNet50-CIFAR10"
 }

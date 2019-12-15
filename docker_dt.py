@@ -225,9 +225,11 @@ class ExpRunner:
         def _moving(src, dst, files):
             for _f in files:
                 shutil.copy2(join(src, _f), join(dst, _f))
-        dst_folder = self.log_folder if self.log_folder \
-            else "./log_archives/{}-{}-{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), 
+        dst_folder = "./log_archives/{}-{}-{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), 
                 self.bw_limit, self.default_bw)
+        if self.log_folder:
+            dst_folder += '-' + self.log_folder
+
         os.makedirs(dst_folder)
         _moving("./logs/cpu", dst_folder, n_cpu - e_cpu)
         _moving("./logs/net", dst_folder, n_net - e_net)
