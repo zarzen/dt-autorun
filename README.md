@@ -1,26 +1,41 @@
 # Instructions
 
-## `init_env.py`
-The script is used for environment initialization. 
-modify the `IPs` and `nccl_home` correspondingly
-```python
-    helper = Initializer(
-        IPs = ['localhost', '172.31.29.187'],
-        nccl_home = "/usr/local/nccl"
-    )
+## Modify configurations at `training-configs` folder
+Mainly adding server IPs, following file is at `training-configs/cifar10-resnet50-2p3dn/2-p3dn-resnet50-cifar10-40G.json`.
+You need to change the `"nodes"` field in the config file (using EC2's private IP here). 
+E.g: you have two instances: `172.31.31.15` and `172.31.29.187`, assume `172.31.29.187` is the `localhost` where we placed 
+our script. Then change `nodes` to be `["localhost", "172.31.31.15"]`
+``` json
+{
+    "comments": "unlimited bandwidth",
+    "host_user": "ubuntu",
+    "host_user_dir": "/home/ubuntu",
+    "host_ssh_key": "~/.ssh/id_rsa",
+    "docker_user_dir": "/home/cluster",
+    "docker_user": "cluster",
+    "docker_ssh_port": 2022,
+    "docker_ssh_key": "./DockerEnv/ssh-keys/id_rsa",
+    "script_path": "~/distributed-training/test_scripts/pytorch_resnet50_cifar10.py",
+    "script_args": "--epochs 20",
+    "nodes": ["localhost", ""],
+    "nGPU": 8,
+    "eth": "ens5",
+    "bw_limit": "40Gbit",
+    "default_bw": "100Gbit",
+    "log_folder": "p3dn-ResNet50-CIFAR10"
+}
 ```
 
-## `dt_exp.py` distributed-training experiments runner
-it will start `mpirun` and gather logs into `log_archives`
-need to change nodes, nGPU, bw_limit, eth
-```python
-    exp = ExpRunner(python_bin, 
-                "~/autorun/distributed-training/test_scripts/pytorch_resnet50_cifar10.py", 
-                "--epochs 1", # args of the script we want to run
-                ["localhost", "172.31.29.187"], # list of worker's ip
-                nGPU="1", # nGPU on each machine
-                eth="ens3", # NIC interface name, used for bandwidth limit
-                bw_limit="1Gbit", # limiting bandwidth, 100Mbit, 1Gbit, 10Gbit 25Gbit, 40Gbit,
-                log_folder="" # if not specified, it will used the timestamp
-                )
+## Run script
+``` bash
+python3 docker_dt.py <config-file> 
+
+# e.g.
+python3 docker_dt.py training-configs/cifar10-resnet50-2p3dn/2-p3dn-resnet50-cifar10-40G.json
 ```
+
+## Sample outputs of `docker_dt.py`
+located at [example-script-output](log.example)
+
+## Other logs
+Program logs will be saved into `log_archives`
