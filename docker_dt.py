@@ -86,7 +86,9 @@ class ExpRunner:
         start_cmd = "sudo docker run --gpus all --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
+            "-v {}/data:{}/data "\
             "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
+                                            self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir)
         self.docker_ids = {}
         for (ip, cli) in self.host_nodes:
@@ -147,6 +149,7 @@ class ExpRunner:
                 else:
                     yield line_buf
                     line_buf = ''
+        
         _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=100)
         print("-"*10, 'training log')
         for line in line_buffered(stdout):

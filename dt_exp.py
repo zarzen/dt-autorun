@@ -35,6 +35,28 @@ class ExpRunner:
             self.clients.append((node, client))
             print('IP', node, 'DONE')
         print('='*10, 'initialization for ssh clients DONE')
+
+    def _init_host_env(self):
+        """"""
+        for ip, cli in self.clients:
+            check_cmd = "cd ~/; ls|grep distributed-training"
+            _, stdout, stderr = cli.exec_command(check_cmd)
+            if stdout.read() != b"":
+                git_pull = "cd ~/distributed-training; git pull"
+                self._exec_cli_cmd(cli, git_pull, '{}: git pull'.format(ip))
+            else:
+                cmd = "cd ~/; "\
+                    "git clone https://github.com/zarzen/distributed-training.git"
+                self._exec_cli_cmd(cli, cmd, "{}: clone training scripts".format(ip))
+
+    def _exec_cli_cmd(self, cli, cmd, msg=None):
+        if msg:
+            print('>'*10, msg, '<'*10)
+        _, stdout, stderr = cli.exec_command(cmd)
+        print('cmd stdout: ', stdout.read().decode('utf-8'),
+              "cmd stderr: ", stderr.read().decode('utf-8'))
+        if msg:
+            print('>'*10, 'DONE', msg, '<'*10)
     
     def bandwith_control(self):
         """
@@ -91,6 +113,8 @@ class ExpRunner:
     
     def run(self):
         """"""
+        self._init_host_env()
+
         print('='*10, "working on bandwidth control")
         self.bandwith_control()
         print('='*10, "bandwidth control DONE")
@@ -165,9 +189,9 @@ def main():
     """"""
     python_bin = "/usr/bin/python3"
     exp = ExpRunner(python_bin, 
-                "~/autorun/distributed-training/test_scripts/pytorch_resnet50_cifar10.py", 
+                "~/autorun/distributed-training/test_scripts/pytorch_resnet50_imagenet.py", 
                 "--epochs 1", # args of the script we want to run
-                ["localhost", "172.31.29.187"], # list of worker's ip
+                ["localhost", "172.31.24.153"], # list of worker's ip
                 nGPU="1", # nGPU on each machine
                 eth="ens3", # NIC interface name, used for bandwidth limit
                 bw_limit="", # limiting bandwidth, 100Mbit, 1Gbit, 10Gbit 25Gbit, 40Gbit,
