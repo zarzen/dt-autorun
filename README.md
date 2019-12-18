@@ -1,5 +1,9 @@
 # Instructions
 
+## Notice
+Make sure `git lfs` has installed and has initialized. `cifar10` dataset now is included in `distributed-training` repo
+using `git lfs`.
+
 ## ImageNet
 Make sure you have `imagenet` data set at `~/data`.
 Here is the possible tree structure of `~/data`:
