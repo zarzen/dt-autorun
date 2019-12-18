@@ -7,12 +7,12 @@
     "docker_user": "cluster",
     "docker_ssh_port": 2022,
     "docker_ssh_key": "./DockerEnv/ssh-keys/id_rsa",
-    "script_path": "~/distributed-training/test_scripts/pytorch_resnet101_imagenet.py",
-    "script_args": "--epochs 1",
-    "nodes": ["localhost", "172.31.24.153"],
-    "nGPU": 1,
-    "eth": "ens3",
+    "script_path": "~/distributed-training/test_scripts/pytorch_resnet50_imagenet.py",
+    "script_args": "--epochs 20",
+    "nodes": ["localhost", ""],
+    "nGPU": 8,
+    "eth": "ens5",
     "bw_limit": "",
-    "default_bw": "1.45Gbps",
-    "log_folder": "resnet101-imagenet"
+    "default_bw": "100Gbit",
+    "log_folder": "2p3dn-Resnet50-imagenet"
 }
