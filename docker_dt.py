@@ -57,7 +57,7 @@ class ExpRunner:
                         "mkdir ~/autorun/horovod_logs/model_log; "\
                         "mkdir ~/autorun/horovod_logs/mpi_events; "\
                         "mkdir ~/autorun/logs/; "\
-                        "mkdir ~/autorun/logs/net; mkdir ~/autorun/logs/cpu"
+                        "mkdir ~/autorun/logs/net; mkdir ~/autorun/logs/cpu; mkdir ~/data "
             self._exec_cli_cmd(cli, check_cmd)
             check_cmd = "cd ~/autorun; ls|grep distributed-training"
             _, stdout, stderr = cli.exec_command(check_cmd)
