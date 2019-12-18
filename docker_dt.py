@@ -154,6 +154,7 @@ class ExpRunner:
         print("-"*10, 'training log')
         for line in line_buffered(stdout):
             print(line)
+        print(stdout.read().decode('utf-8'))
         print(stderr.read().decode('utf-8'))
         print('-'*10, 'training log end')
     

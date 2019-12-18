@@ -189,7 +189,7 @@ def main():
     """"""
     python_bin = "/usr/bin/python3"
     exp = ExpRunner(python_bin, 
-                "~/autorun/distributed-training/test_scripts/pytorch_resnet50_imagenet.py", 
+                "~/autorun/distributed-training/test_scripts/pytorch_resnet101_cifar10.py", 
                 "--epochs 1", # args of the script we want to run
                 ["localhost", "172.31.24.153"], # list of worker's ip
                 nGPU="1", # nGPU on each machine
