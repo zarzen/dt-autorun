@@ -1,5 +1,33 @@
 # Instructions
 
+## ImageNet
+Make sure you have `imagenet` data set at `~/data`.
+Here is the possible tree structure of `~/data`:
+``` text
+/home/ubuntu/data
+├── cifar-10-batches-py
+│   ├── batches.meta
+│   ├── data_batch_1
+│   ├── data_batch_2
+│   ├── data_batch_3
+│   ├── data_batch_4
+│   ├── data_batch_5
+│   ├── readme.html
+│   └── test_batch
+├── cifar-10-python.tar.gz
+└── imagenet
+    ├── bounding_boxes
+    ├── idxar_map.p
+    ├── idxar_map_192.p
+    ├── idxar_map_64.p
+    ├── imagenet_2012_bounding_boxes.csv
+    ├── sorted_idxar.p
+    ├── train
+    ├── trn_file2size.p
+    ├── val_file2size.p
+    └── validation
+```
+
 ## Modify configurations at `training-configs` folder
 Mainly adding server IPs, following file is at `training-configs/cifar10-resnet50-2p3dn/2-p3dn-resnet50-cifar10-40G.json`.
 You need to change the `"nodes"` field in the config file (using EC2's private IP here). 
