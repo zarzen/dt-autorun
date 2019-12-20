@@ -14,5 +14,5 @@
     "eth": "ens5",
     "bw_limit": "40Gbit",
     "default_bw": "100Gbit",
-    "log_folder": "p3dn-ResNet50-CIFAR10"
+    "log_folder": "p3dn-vgg16-CIFAR10"
 }
