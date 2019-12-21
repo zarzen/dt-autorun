@@ -59,6 +59,12 @@ our script. Then change `nodes` to be `["localhost", "172.31.31.15"]`
 ```
 
 ## Run script
+### single node 
+``` bash 
+python3 batch_run_st.py
+```
+
+### multi-nodes
 ``` bash
 python3 docker_dt.py <config-file> 
 
