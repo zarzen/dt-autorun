@@ -118,6 +118,13 @@ RUN cd ${HOME} && \
     LD_LIBRARY_PATH=/usr/local/cuda/compat \
     python setup.py install
 
+# Install mimic distributed training program
+RUN cd ${HOME} && \
+    git clone https://github.com/zarzen/mimic_dt.git && \
+    cd ${HOME}/mimic_dt && \
+    make MPI=1 CUDA_HOME=/usr/local/cuda
+
+
 COPY container_entrypoint.sh /etc/
 ENTRYPOINT /etc/container_entrypoint.sh
 
