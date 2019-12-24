@@ -53,12 +53,11 @@ class Controller:
     
     def start_containers(self):
         start_cmd = "docker run --gpus all --network=host --detach --ipc=host "\
-            "-v {}/chaokun_logs:{}/chaokun_logs "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
-                                            self.host_user_dir, self.docker_user_dir,
-                                            self.host_user_dir, self.docker_user_dir)
+                                            self.host_user_dir, self.docker_user_dir
+                                            )
         for (ip, cli) in self.host_nodes:
             self._exec_cli_cmd(cli, start_cmd, "{} start containers".format(ip))
     

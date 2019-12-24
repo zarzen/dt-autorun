@@ -124,6 +124,11 @@ RUN cd ${HOME} && \
     cd ${HOME}/mimic_dt && \
     make MPI=1 CUDA_HOME=/usr/local/cuda
 
+# Dowload logs for experiment
+RUN cd ${HOME} && \
+    wget https://dt-training.s3.amazonaws.com/chaokun_logs.tar.gz && \
+    tar -zxf chaokun_logs.tar.gz && \
+    rm chaokun_logs.tar.gz
 
 COPY container_entrypoint.sh /etc/
 ENTRYPOINT /etc/container_entrypoint.sh
