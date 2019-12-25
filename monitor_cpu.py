@@ -2,6 +2,7 @@ import psutil
 import time
 from datetime import datetime
 import os
+import sys
 
 
 def create_cpu_logfile():
@@ -16,7 +17,11 @@ def create_cpu_logfile():
 def main():
     cpu_interval = 1
 
-    logfile = create_cpu_logfile()
+    if len(sys.argv) > 1:
+        # second arg as output file path
+        logfile = sys.argv[1]
+    else:
+        logfile = create_cpu_logfile()
     with open(logfile, 'w') as cpu_log:
         
         while True:

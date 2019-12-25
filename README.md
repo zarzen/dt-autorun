@@ -72,6 +72,15 @@ python3 docker_dt.py <config-file>
 python3 docker_dt.py training-configs/cifar10-resnet50-2p3dn/2-p3dn-resnet50-cifar10-40G.json
 ```
 
+### mimic distributed training scripts
+``` bash
+python3 docker_mt.py <config-file> <debug-flag>
+
+# e.g.
+python3 docker_mt.py training-configs/mimic_config_template.json
+```
+* Note: logs will be saved into `chaokun_logs/<sub-dir>`, thus we need the log folder.
+
 ## Sample outputs of `docker_dt.py`
 located at [example-script-output](log.example)
 

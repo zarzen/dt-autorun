@@ -2,6 +2,7 @@ import psutil
 import time
 from datetime import datetime
 import os
+import sys
 
 def comp_bandwidth(new, old, interval):
     dRecv = new.bytes_recv - old.bytes_recv
@@ -10,7 +11,7 @@ def comp_bandwidth(new, old, interval):
     return dRecv*8 / interval, dSend*8 / interval
 
 def create_logfile():
-    log_folder = "./logs/net"
+    log_folder = "./logs/netll"
     if not os.path.exists(log_folder):
         os.makedirs(log_folder)
     dt = datetime.fromtimestamp(time.time())
@@ -21,7 +22,11 @@ def create_logfile():
 def main():
     interval = 0.1
     old_net_stat = psutil.net_io_counters()
-    logfile = create_logfile()
+    if len(sys.argv) > 1:
+        # second arg as output log file
+        logfile = sys.argv[1]
+    else:
+        logfile = create_logfile()
     with open(logfile, 'w') as net_log:
         
         while True:

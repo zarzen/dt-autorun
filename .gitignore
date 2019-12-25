@@ -7,3 +7,5 @@ log_archives
 horovod_logs
 data-*/
 __pycache__/
+tmp/
+chaokun_logs/
