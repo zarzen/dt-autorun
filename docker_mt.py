@@ -142,7 +142,8 @@ class MimicExp:
             self.docker_user_dir +
             "/mimic_dt/build/mdt_allreduce_perf",
             "-b 500M -e 500M -f 2 -g 1 -c 0 -w 0",
-            "-l", join(folder_path, "log_for_dt_mimic.txt")
+            "-l", join(folder_path, "log_for_dt_mimic.txt"),
+            "|& grep -v \"Read -1\""
         ]
         return " ".join(cmd)
 
