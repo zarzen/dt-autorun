@@ -97,6 +97,10 @@ class MimicExp:
         # read the orginal experiment config to get the bw limit
         folder_path = join(self.host_user_dir,
                            self.base_logdir, folder_name)
+        if not os.path.isdir(folder_path) or \
+            not os.path.exists(join(folder_path, "config.json")):
+            return
+
         with open(join(folder_path, "config.json")) as ifile:
             config = json.load(ifile)
             bw_limit = config['bw_limit']
