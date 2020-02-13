@@ -8,7 +8,7 @@
     "docker_ssh_port": 2022,
     "docker_ssh_key": "./DockerEnv/ssh-keys/id_rsa",
     "script_path": "~/distributed-training/test_scripts/pytorch_vgg16_imagenet.py",
-    "script_args": "--epochs 20",
+    "script_args": "--epochs 2",
     "nodes": ["localhost"],
     "nGPU": 8,
     "eth": "ens5",
