@@ -28,7 +28,7 @@ class SingleNodeExp(ExpRunner):
         stop_cmd = "docker kill $(docker ps -q)"
         pull_cmd = "docker pull zarzen/horovod-mod:1.0"
 
-        start_cmd = "sudo docker run --gpus all --network=host --detach --ipc=host "\
+        start_cmd = "sudo docker run --gpus 1 --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "-v {}/data:{}/data "\
