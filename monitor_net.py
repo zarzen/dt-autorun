@@ -11,7 +11,7 @@ def comp_bandwidth(new, old, interval):
     return dRecv*8 / interval, dSend*8 / interval
 
 def create_logfile():
-    log_folder = "./logs/netll"
+    log_folder = "./logs/net"
     if not os.path.exists(log_folder):
         os.makedirs(log_folder)
     dt = datetime.fromtimestamp(time.time())
