@@ -5,7 +5,7 @@ ENV TENSORFLOW_VERSION=2.0.0b1
 ENV PYTORCH_VERSION=1.3.0
 ENV TORCHVISION_VERSION=0.4.1
 ENV CUDNN_VERSION=7.6.0.64-1+cuda10.0
-ENV NCCL_VERSION=2.4.8-1+cuda10.0
+# ENV NCCL_VERSION=2.4.8-1+cuda10.0
 ENV MXNET_VERSION=1.5.0
 ARG python=3.6
 ENV PYTHON_VERSION=${python}
@@ -43,7 +43,7 @@ RUN mkdir -p ${SSHDIR} \
     && chown -R ${USER}:${USER} ${SSHDIR}/
 
 # set path for ssh user
-RUN echo "export PATH=\"/usr/local/cuda/bin:\$PATH\"" > $HOME/.bashrc
+RUN echo "export PATH=\"/usr/local/cuda/bin:/opt/amazon/openmpi/bin:\$PATH\"" > $HOME/.bashrc
 
 # install library packages
 RUN apt-get update && apt-get install -y \
@@ -55,8 +55,6 @@ RUN apt-get update && apt-get install -y \
         wget \
         ca-certificates \
         libcudnn7=${CUDNN_VERSION} \
-        libnccl2=${NCCL_VERSION} \
-        libnccl-dev=${NCCL_VERSION} \
         libjpeg-dev \
         libpng-dev \
         python${PYTHON_VERSION} \
@@ -70,9 +68,6 @@ RUN if [[ "${PYTHON_VERSION}" == "3.6" ]]; then \
     fi
 RUN ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python
 
-# RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
-#     python get-pip.py && \
-#     rm get-pip.py
 
 # upgrade packages
 RUN pip3 install -U setuptools
@@ -92,18 +87,36 @@ RUN pip3 install https://download.pytorch.org/whl/cu100/torch-${PYTORCH_VERSION}
 RUN pip3 install tqdm
 RUN pip3 install tensorboardX
 
-# Install Open MPI
-RUN mkdir /tmp/openmpi && \
-    cd /tmp/openmpi && \
-    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.2.tar.gz && \
-    tar zxf openmpi-4.0.2.tar.gz && \
-    cd openmpi-4.0.2 && \
-    ./configure --enable-orterun-prefix-by-default && \
-    make -j $(nproc) all && \
-    make install && \
-    ldconfig && \
-    rm -rf /tmp/openmpi
 
+# Run EFA installer
+RUN curl -O https://s3-us-west-2.amazonaws.com/aws-efa-installer/aws-efa-installer-1.8.3.tar.gz && \
+    tar -xzf aws-efa-installer-1.5.1.tar.gz && \
+    cd aws-efa-installer && \
+    ./efa_installer.sh -y --skip-kmod --skip-limit-conf --debug-packages
+
+ENV PATH="/usr/local/cuda/bin:/opt/amazon/openmpi/bin:$PATH"
+
+# Build NCCL library
+RUN git clone -b v2.4.8-1 https://github.com/NVIDIA/nccl.git && cd nccl && /bin/bash && \
+    make -j src.build CUDA_HOME=/usr/local/cuda && \
+    make install
+
+
+# Build AWS OFI NCCL plugin
+RUN git clone https://github.com/aws/aws-ofi-nccl.git -b aws && \
+    cd aws-ofi-nccl && git reset --hard 6b16033f9f81381e4ce59c139a256db8232f9646 && \
+    ./autogen.sh && \
+    ./configure --with-libfabric=/opt/amazon/efa --with-cuda=/usr/local/cuda \
+        --with-nccl=/usr/local --with-mpi=/opt/amazon/openmpi && \
+    PATH=/opt/amazon/openmpi/bin:$PATH make && \
+    make install
+
+# Install nccl-tests
+RUN git clone https://github.com/NVIDIA/nccl-tests.git && \
+    cd nccl-tests && \
+    make MPI=1 MPI_HOME=/opt/amazon/openmpi \
+    CUDA_HOME=/usr/local/cuda \
+    NCCL_HOME=/usr/local
 
 # Install modified horovod
 RUN cd ${HOME} && \
@@ -124,6 +137,7 @@ RUN cd ${HOME} && \
     cd ${HOME}/mimic_dt && \
     make MPI=1 CUDA_HOME=/usr/local/cuda
 
+ENV PATH /usr/local/cuda/bin:/opt/amazon/openmpi/bin:$PATH
 
 COPY container_entrypoint.sh /etc/
 ENTRYPOINT /etc/container_entrypoint.sh
