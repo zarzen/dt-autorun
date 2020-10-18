@@ -5,7 +5,6 @@ ENV TENSORFLOW_VERSION=2.0.0b1
 ENV PYTORCH_VERSION=1.3.0
 ENV TORCHVISION_VERSION=0.4.1
 ENV CUDNN_VERSION=7.6.0.64-1+cuda10.0
-ENV NCCL_VERSION=2.4.8-1+cuda10.0
 ENV MXNET_VERSION=1.5.0
 ARG python=3.6
 ENV PYTHON_VERSION=${python}
@@ -55,15 +54,14 @@ RUN apt-get update && apt-get install -y \
         wget \
         ca-certificates \
         libcudnn7=${CUDNN_VERSION} \
-        libnccl2=${NCCL_VERSION} \
-        libnccl-dev=${NCCL_VERSION} \
         libjpeg-dev \
         libpng-dev \
         python${PYTHON_VERSION} \
         python${PYTHON_VERSION}-dev \
         librdmacm1 \
         libibverbs1 \
-        ibverbs-providers
+        ibverbs-providers \
+        zip
 
 RUN if [[ "${PYTHON_VERSION}" == "3.6" ]]; then \
         apt-get install -y python${PYTHON_VERSION}-distutils; \
@@ -104,6 +102,13 @@ RUN mkdir /tmp/openmpi && \
     ldconfig && \
     rm -rf /tmp/openmpi
 
+# Install nccl modified
+RUN cd /tmp && \
+    wget https://dt-training.s3.amazonaws.com/nccl-postSend-0.zip && \
+    unzip nccl-postSend-0.zip && \
+    cd nccl-postSend-0 && \
+    make -j src.build && \
+    make install 
 
 # Install modified horovod
 RUN cd ${HOME} && \
@@ -113,6 +118,8 @@ RUN cd ${HOME} && \
     pwd && \
     HOROVOD_GPU_ALLREDUCE=NCCL \
     HOROVOD_WITH_MPI=1 \
+    HOROVOD_NCCL_INCLUDE=/usr/local/include \
+    HOROVOD_NCCL_LIB=/usr/local/lib \
     HOROVOD_CUDA_HOME=/usr/local/cuda \
     HOROVOD_WITHOUT_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITHOUT_MXNET=1 \
     LD_LIBRARY_PATH=/usr/local/cuda/compat \

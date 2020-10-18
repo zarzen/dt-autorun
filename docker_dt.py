@@ -81,13 +81,13 @@ class ExpRunner:
     def _start_containers(self):
         """"""
         stop_cmd = "docker kill $(docker ps -q)"
-        pull_cmd = "docker pull zarzen/horovod-mod:1.0"
+        pull_cmd = "docker pull zarzen/horovod-mod:1.1"
 
         start_cmd = "sudo docker run --gpus all --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "-v {}/data:{}/data "\
-            "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
+            "zarzen/horovod-mod:1.1".format(self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir)
         self.docker_ids = {}
@@ -107,7 +107,7 @@ class ExpRunner:
         print('*'*10, 'killing docker containers')
         kill_cmd = "docker container kill {}"
         for ip, cli in self.host_nodes:
-            if ip in self.docker_ids:
+            if self.docker_ids and ip in self.docker_ids:
                 self._exec_cli_cmd(cli, kill_cmd.format(self.docker_ids[ip]), ip)
         print('*'*10, 'kill containers done')
 

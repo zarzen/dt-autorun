@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINER_REGISTRY="zarzen/horovod-mod:1.0"
+CONTAINER_REGISTRY="zarzen/horovod-mod:1.1"
 
 rm -rf ssh-keys
 
