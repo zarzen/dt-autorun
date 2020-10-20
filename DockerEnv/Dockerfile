@@ -104,9 +104,8 @@ RUN mkdir /tmp/openmpi && \
 
 # Install nccl modified
 RUN cd /tmp && \
-    wget https://dt-training.s3.amazonaws.com/nccl-postSend-0.zip && \
-    unzip nccl-postSend-0.zip && \
-    cd nccl-postSend-0 && \
+    git clone -b postSend-0 https://github.com/zarzen/nccl.git && \
+    cd ./nccl && \
     make -j src.build && \
     make install 
 

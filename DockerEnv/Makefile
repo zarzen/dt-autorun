@@ -1,6 +1,6 @@
 export USER="cluster"
 export CONTAINER_NAME="horovod-mod"
-export CONTAINER_REGISTRY="zarzen/horovod-mod:1.1"
+export CONTAINER_REGISTRY="zarzen/horovod-mod:nccl-noSum-noSock"
 
 image: Dockerfile
 	sudo docker build --tag $(CONTAINER_REGISTRY) .

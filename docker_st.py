@@ -10,6 +10,7 @@ class SingleNodeExp(ExpRunner):
         """"""
         self.config = config
         self._parse_config(config)
+        self.host_nodes = []
     
     def _parse_config(self, config):
         self.host_user_dir = config["host_user_dir"]
@@ -26,13 +27,13 @@ class SingleNodeExp(ExpRunner):
     def _start_containers(self):
         """ start local container only"""
         stop_cmd = "docker kill $(docker ps -q)"
-        pull_cmd = "docker pull zarzen/horovod-mod:1.0"
+        pull_cmd = "docker pull zarzen/horovod-mod:nccl-noSum-noSock"
 
         start_cmd = "sudo docker run --gpus 1 --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "-v {}/data:{}/data "\
-            "zarzen/horovod-mod:1.0".format(self.host_user_dir, self.docker_user_dir,
+            "zarzen/horovod-mod:nccl-noSum-noSock".format(self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir)
         subprocess.run(stop_cmd, shell=True)
@@ -40,7 +41,7 @@ class SingleNodeExp(ExpRunner):
         subprocess.run(start_cmd, shell=True)
     
     def _init_host_env(self):
-        check_cmd = "mkdir ~/autorun; mkdir ~/autorun/horovod_logs; " \
+        check_cmd = "rm -rf ~/autorun; mkdir ~/autorun; mkdir ~/autorun/horovod_logs; " \
                         "mkdir ~/autorun/horovod_logs/hooks; "\
                         "mkdir ~/autorun/horovod_logs/model_log; "\
                         "mkdir ~/autorun/horovod_logs/mpi_events; "\
@@ -48,15 +49,9 @@ class SingleNodeExp(ExpRunner):
                         "mkdir ~/autorun/logs/net; mkdir ~/autorun/logs/cpu; mkdir ~/data "
         subprocess.run(check_cmd, shell=True)
 
-        check_cmd = "cd ~/autorun; ls|grep distributed-training"
-        output = subprocess.check_output(check_cmd, shell=True)
-        if output != b"":
-            git_pull = "cd ~/autorun/distributed-training; git pull"
-            subprocess.run(git_pull, shell=True)
-        else:
-            cmd = "cd ~/autorun;"\
-                    "git clone https://github.com/zarzen/distributed-training.git"
-            subprocess.run(cmd, shell=True) 
+        cmd = "cd ~/autorun;"\
+                "git clone https://github.com/handar423/distributed-training.git"
+        subprocess.run(cmd, shell=True) 
     
     def run(self):
         """"""
@@ -82,16 +77,16 @@ class SingleNodeExp(ExpRunner):
         self.contianer = SSHClient("localhost", user=self.docker_user, port=2022,
             pkey=self.docker_key)
     
-    def _kill_containers(self):
-        stop_cmd = "docker kill $(docker ps -q)" 
-        subprocess.run(stop_cmd, shell=True)
+    # def _kill_containers(self):
+    #     stop_cmd = "docker kill $(docker ps -q)" 
+    #     subprocess.run(stop_cmd, shell=True)
 
     def _exe_cmd(self, client, cmd):
-        _channel, _host, stdout, stderr, stdin = client.run_command(cmd)
-        for line in stdout:
-            print(_host, ":", line)
-        for line in stderr:
-            print(_host, ":", line)
+        ret = client.run_command(cmd)
+        for line in ret.stdout:
+            print(line)
+        for line in ret.stderr:
+            print(line)
 
 def main():
     if len(sys.argv) < 2:

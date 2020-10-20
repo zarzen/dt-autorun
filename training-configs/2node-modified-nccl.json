@@ -7,12 +7,12 @@
     "docker_user": "cluster",
     "docker_ssh_port": 2022,
     "docker_ssh_key": "./DockerEnv/ssh-keys/id_rsa",
-    "script_path": "~/distributed-training/test_scripts/pytorch_mnist.py",
-    "script_args": "--epochs 1",
+    "script_path": "~/distributed-training/test_scripts/synthesis/horovod_synthetic_benchmark.py",
+    "script_args": "--num-iters 20 --model vgg16",
     "nodes": ["172.31.68.105", "172.31.72.92"],
     "nGPU": 1,
     "eth": "ens5",
     "bw_limit": "",
     "default_bw": "25Gbps",
-    "log_folder": "ResNet101-CIFAR10"
+    "log_folder": "VGG16-SYNTHETIC-mod-NCCL"
 }

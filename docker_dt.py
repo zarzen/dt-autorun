@@ -52,7 +52,7 @@ class ExpRunner:
     def _init_host_env(self):
         """"""
         for ip, cli in self.host_nodes:
-            check_cmd = "mkdir ~/autorun; mkdir ~/autorun/horovod_logs; " \
+            check_cmd = "rm -rf ~/autorun; mkdir ~/autorun; mkdir ~/autorun/horovod_logs; " \
                         "mkdir ~/autorun/horovod_logs/hooks; "\
                         "mkdir ~/autorun/horovod_logs/model_log; "\
                         "mkdir ~/autorun/horovod_logs/mpi_events; "\
@@ -66,7 +66,7 @@ class ExpRunner:
                 self._exec_cli_cmd(cli, git_pull, '{}: git pull'.format(ip))
             else:
                 cmd = "cd ~/autorun;"\
-                    "git clone https://github.com/zarzen/distributed-training.git"
+                    "git clone https://github.com/handar423/distributed-training.git"
                 self._exec_cli_cmd(cli, cmd, "{}: clone training scripts".format(ip))
     
     def _exec_cli_cmd(self, cli, cmd, msg=None):
@@ -81,13 +81,13 @@ class ExpRunner:
     def _start_containers(self):
         """"""
         stop_cmd = "docker kill $(docker ps -q)"
-        pull_cmd = "docker pull zarzen/horovod-mod:1.1"
+        pull_cmd = "docker pull zarzen/horovod-mod:nccl-noSum-noSock"
 
         start_cmd = "sudo docker run --gpus all --network=host --detach --ipc=host "\
             "-v {}/autorun/distributed-training:{}/distributed-training "\
             "-v {}/autorun/horovod_logs:{}/horovod_logs "\
             "-v {}/data:{}/data "\
-            "zarzen/horovod-mod:1.1".format(self.host_user_dir, self.docker_user_dir,
+            "zarzen/horovod-mod:nccl-noSum-noSock".format(self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir,
                                             self.host_user_dir, self.docker_user_dir)
         self.docker_ids = {}
@@ -150,7 +150,7 @@ class ExpRunner:
                     yield line_buf
                     line_buf = ''
         
-        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=100)
+        _, stdout, stderr = rank0.exec_command(" ".join(train_cmd), bufsize=100, get_pty=True)
         print("-"*10, 'training log')
         for line in line_buffered(stdout):
             print(line)
